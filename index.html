@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Abfallkalender Wollerau abonnieren</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 2rem auto; padding: 0 1rem; color: #1a2f5e; }
+    h1 { font-size: 1.4rem; }
+    a.btn { display: block; padding: .9rem 1rem; margin: .6rem 0; background: #25437a; color: #fff;
+            text-decoration: none; border-radius: 8px; text-align: center; font-weight: 600; }
+    a.btn.sec { background: #eef1f6; color: #25437a; }
+    small { color: #555; }
+  </style>
+</head>
+<body>
+  <h1 id="titel">Abfallkalender Wollerau</h1>
+  <p id="intro">Kalender abonnieren. Er wird danach automatisch aktualisiert.</p>
+  <div id="buttons"></div>
+  <small>Gemeinde Wollerau · <a href="https://www.wollerau.ch/leben-in-wollerau/77323">Recycling und Entsorgung</a></small>
+
+  <script>
+    // Kürzel -> Name + Kalender-ID
+    var KALENDER = {
+      kehricht:  { name: "🗑️ Kehricht",          id: "4b98c002208ae2f63f3f91bcd320c3c59850bfedfe00b33530f2586152cc8bff" },
+      gruengut:  { name: "🪴 Grüngut",           id: "29483cf80f9d175c6cb5b27d7cbfc15c938c1f9c22d723922d15daa57de2cc0f" },
+      karton:    { name: "📦 Karton",            id: "52876410981688517d19603d011824fe827896b862ff41b8a3814de9001e42d4" },
+      altpapier: { name: "📰 Altpapier",         id: "50f27f84dddb9b7cff55af6d8b0d12a35b9c3e1e947475728a177d847cdee96f" },
+      haeckseln: { name: "🪵 Häckselservice",    id: "30c6d4f6b9c3909df96bda901af37e3dbef9fc9292c43d56bad64253f6f70b3f" }
+    };
+
+    var k = new URLSearchParams(location.search).get("k");
+    var cal = KALENDER[k];
+
+    if (!cal) {
+      document.getElementById("intro").textContent = "Bitte wählen Sie einen Kalender:";
+      var html = "";
+      for (var key in KALENDER) {
+        html += '<a class="btn sec" href="?k=' + key + '">' + KALENDER[key].name + '</a>';
+      }
+      document.getElementById("buttons").innerHTML = html;
+    } else {
+      var adresse = cal.id + "@group.calendar.google.com";
+      var icsPfad = "calendar.google.com/calendar/ical/" + cal.id + "%40group.calendar.google.com/public/basic.ics";
+      var googleLink = "https://calendar.google.com/calendar/u/0?cid=" + btoa(adresse).replace(/=+$/, "");
+      var webcalLink = "webcal://" + icsPfad;
+      var icsLink = "https://" + icsPfad;
+
+      document.title = cal.name + " abonnieren";
+      document.getElementById("titel").textContent = cal.name;
+      document.getElementById("buttons").innerHTML =
+        '<a class="btn" href="' + webcalLink + '">In Apple Kalender abonnieren</a>' +
+        '<a class="btn" href="' + googleLink + '">In Google Kalender abonnieren</a>' +
+        '<a class="btn sec" href="' + icsLink + '">Anderes Programm: ICS-Link öffnen</a>' +
+        '<small>Outlook, Thunderbird usw.: Link der dritten Schaltfläche kopieren und als «Kalender per URL abonnieren» einfügen.</small>' +
+        '<p><a href="./">← Alle Kalender</a></p>';
+
+      // Auf iPhone, iPad und Mac direkt das Abo auslösen
+      var apple = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent);
+      if (apple) { setTimeout(function () { location.href = webcalLink; }, 400); }
+    }
+  </script>
+</body>
+</html>
